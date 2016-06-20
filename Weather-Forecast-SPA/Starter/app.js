@@ -27,9 +27,17 @@ weatherApp.service('cityService', function(){
 })
 
 // CONTROLLERS
-weatherApp.controller('homeController', ['$scope', 'cityService', function($scope, cityService) {
+weatherApp.controller('homeController', ['$scope', '$resource', 'cityService', function($scope, $resource cityService) {
     
       $scope.city = cityService.city;
+    
+    $scope.weatherAPI = $resource("http://api.openweathermap.org/data/2.5/forecast", {
+        callback: "JSON_CALLBACK"}, {get: { method: "JSONP"}});
+    
+    $scope.weatherResult = $scope.weatherAPI.get({ q: $scope.city, cnt: 2});
+    
+    console.log($scope.weatherResult);
+    
     
     $scope.$watch('city', function() {
        cityService.city = $scope.city; 
@@ -42,3 +50,19 @@ weatherApp.controller('forecastController', ['$scope', 'cityService', function($
     $scope.city = cityService.city;
     
 }]);
+
+weatherApp.directive('weatherReport', function() {
+    return {
+        restrict: 'E',
+        templateUrl: 'directives/weatherReport.html',
+        replace: true,
+        scope: {
+            weatherDay: "=",
+            convertToStandard: "&",
+            convertToDate: "&",
+            dateFormat: "@"
+        }
+        
+    
+    }
+})
